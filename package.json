@@ -1,0 +1,29 @@
+{
+  "name": "proxy-service-directory",
+  "version": "0.0.1",
+  "description": "Proxy web requests to services based on the directory (i.e. url path).",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lakowske/proxy-service-directory.git"
+  },
+  "keywords": [
+    "proxy",
+    "service",
+    "directory"
+  ],
+  "author": "Seth Lakowske <lakowske@gmail.com> (http://sethlakowske.com/)",
+  "license": "BSD-3",
+  "bugs": {
+    "url": "https://github.com/lakowske/proxy-service-directory/issues"
+  },
+  "homepage": "https://github.com/lakowske/proxy-service-directory",
+  "dependencies": {
+    "http-proxy": "^1.8.1",
+    "proxy-by-directory": "0.0.1",
+    "proxy-by-url": "0.0.3"
+  }
+}
