@@ -11,7 +11,7 @@ var proxy = httpProxy.createProxyServer({});
 
 var server = http.createServer(proxyByDirectory({
     '/articles' : { target : 'http://localhost:4444/' },
-    '/software' : { target : 'http://sethlakowske.com' }
+    '/' : { target : 'http://sethlakowske.com' }
 }, proxy))
 
 server.listen(8880);

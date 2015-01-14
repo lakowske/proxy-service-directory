@@ -23,7 +23,7 @@
   "homepage": "https://github.com/lakowske/proxy-service-directory",
   "dependencies": {
     "http-proxy": "^1.8.1",
-    "proxy-by-directory": "0.0.1",
+    "proxy-by-directory": "*",
     "proxy-by-url": "0.0.3"
   }
 }
