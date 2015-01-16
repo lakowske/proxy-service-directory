@@ -8,7 +8,6 @@ var httpProxy        = require('http-proxy');
 var proxyByDirectory = require('proxy-by-directory');
 var Deployer         = require('github-webhook-deployer');
 
-
 var port   = parseInt(process.argv[2], 10);
 
 if (!port) {
@@ -24,7 +23,7 @@ var server = http.createServer(proxyByDirectory({
     '/' : { target : 'http://sethlakowske.com' }
 }, proxy))
 
-console.log('listening on ' + port);
+console.log('proxy listening on ' + port);
 
 server.listen(port);
 
@@ -37,4 +36,5 @@ try {
 }
 
 var deployer = new Deployer(config);
+console.log('deployer listening on ' + port);
 deployer.listen(port+1);
