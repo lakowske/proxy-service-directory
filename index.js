@@ -19,7 +19,7 @@ if (!port) {
 var proxy  = httpProxy.createProxyServer({});
 
 var server = http.createServer(proxyByDirectory({
-    '/articles' : { target : 'http://localhost:4444/' },
+    '/articles' : { target : 'http://localhost:5555/' },
     '/' : { target : 'http://sethlakowske.com' }
 }, proxy))
 
