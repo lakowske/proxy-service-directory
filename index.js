@@ -35,6 +35,7 @@ try {
     process.exit(-1);
 }
 
+var deployerPort = port+1
 var deployer = new Deployer(config);
-console.log('deployer listening on ' + port);
-deployer.listen(port+1);
+console.log('deployer listening on ' + deployerPort);
+deployer.listen(deployerPort);
