@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/lakowske/proxy-service-directory",
   "dependencies": {
+    "github-webhook-deployer": "0.0.2",
     "http-proxy": "^1.8.1",
     "proxy-by-directory": "*",
     "proxy-by-url": "0.0.3"
