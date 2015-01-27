@@ -20,6 +20,7 @@ var proxy  = httpProxy.createProxyServer({});
 
 var server = http.createServer(proxyByDirectory({
     '/articles' : { target : 'http://localhost:5555/' },
+    '/static' : { target : 'http://localhost:5555/' },
     '/' : { target : 'http://sethlakowske.com:7777' }
 }, proxy))
 
