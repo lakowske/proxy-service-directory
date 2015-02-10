@@ -24,7 +24,9 @@
   "dependencies": {
     "github-webhook-deployer": "0.0.2",
     "http-proxy": "^1.8.1",
+    "http-request-logger": "0.0.2",
+    "level": "^0.18.0",
     "proxy-by-directory": "*",
-    "proxy-by-url": "0.0.3"
+    "routes": "^2.0.0"
   }
 }
