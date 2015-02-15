@@ -10,6 +10,7 @@ var level            = require('level');
 var logger           = require('http-request-logger');
 var router           = require('routes')();
 var Deployer         = require('github-webhook-deployer');
+var cors             = new (require('http-cors'))();
 
 var port   = parseInt(process.argv[2], 10);
 
@@ -28,13 +29,15 @@ router.addRoute('/requests', requestLogger.requests());
 var proxy  = httpProxy.createProxyServer({});
 
 var proxyFn = proxyByDirectory({
-    '/articles' : { target : 'http://localhost:5555/' },
+    '/articles' : { target : 'http://sethlakowske.com' },
     '/static' : { target : 'http://localhost:5555/' },
-    '/requests' : { target : 'http://localhost:5555/' },
-    '/' : { target : 'http://sethlakowske.com:7777' }
+    '/' : { target : 'http://sethlakowske.com' }
 }, proxy)
 
 var server = http.createServer(function(req, res) {
+    console.log(req.url);
+    if (cors.apply(req, res)) return;
+
     //log the request
     request(req, res);
 
