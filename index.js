@@ -24,7 +24,9 @@ if (!port) {
 var db = level('./request.db');
 requestLogger = logger(db);
 request       = requestLogger.request();
+router.addRoute('/requests/classified', requestLogger.classified());
 router.addRoute('/requests', requestLogger.requests());
+
 
 var proxy  = httpProxy.createProxyServer({});
 
