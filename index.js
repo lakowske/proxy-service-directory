@@ -3,6 +3,7 @@
  */
 
 var fs               = require('fs');
+var path             = require('path');
 var http             = require('http');
 var httpProxy        = require('http-proxy');
 var proxyByDirectory = require('proxy-by-directory');
@@ -49,11 +50,12 @@ var server = http.createServer(function(req, res) {
 });
 
 console.log('proxy listening on ' + port);
+console.log('script dir ' + __dirname);
 
 server.listen(port);
 
 try {
-    var config = JSON.parse(fs.readFileSync('config.json'));
+    var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
 } catch (error) {
     console.log(error);
     console.log('Problem loading configuration. Create a config.json file with deployer configuration');
