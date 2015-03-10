@@ -32,9 +32,9 @@ router.addRoute('/requests', requestLogger.requests());
 var proxy  = httpProxy.createProxyServer({});
 
 var proxyFn = proxyByDirectory({
-    '/articles' : { target : 'http://sethlakowske.com' },
+    '/articles' : { target : 'http://localhost:5555/' },
     '/static' : { target : 'http://localhost:5555/' },
-    '/' : { target : 'http://sethlakowske.com' }
+    '/' : { target : 'http://localhost:7777' }
 }, proxy)
 
 var server = http.createServer(function(req, res) {
