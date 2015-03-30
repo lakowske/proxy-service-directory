@@ -38,6 +38,7 @@ var proxyFn = proxyByDirectory({
 }, proxy)
 
 var server = http.createServer(function(req, res) {
+    console.log(req.method);
     console.log(req.url);
     if (cors.apply(req, res)) return;
 
