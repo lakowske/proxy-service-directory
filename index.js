@@ -10,6 +10,7 @@ var proxyByDirectory = require('proxy-by-directory');
 var level            = require('level');
 var logger           = require('http-request-logger');
 var router           = require('routes')();
+var methods          = require('http-methods');
 var Deployer         = require('github-webhook-deployer');
 var cors             = new (require('http-cors'))();
 
@@ -25,9 +26,7 @@ if (!port) {
 var db = level('./request.db');
 requestLogger = logger(db);
 request       = requestLogger.request();
-router.addRoute('/requests/classified', requestLogger.classified());
-router.addRoute('/requests', requestLogger.requests());
-
+router.addRoute('/requests', methods({GET:requestLogger.requests(), POST:requestLogger.classified()}));
 
 var proxy  = httpProxy.createProxyServer({});
 
@@ -38,22 +37,21 @@ var proxyFn = proxyByDirectory({
 }, proxy)
 
 var server = http.createServer(function(req, res) {
+
     console.log(req.method);
     console.log(req.url);
     if (cors.apply(req, res)) return;
 
-    //log the request
-    request(req, res);
-
     var m = router.match(req.url);
-    if (m) m.fn(req, res, m.params); //check if we should serve the request
-    else proxyFn(req, res);          //otherwise route the request to the correct server
-
+    if (m) m.fn(req, res, m.params, function() {console.log("served proxy req")}); //check if we should serve the request
+    else {
+        //log the request
+        request(req, res);
+        //route the request to the correct server
+        proxyFn(req, res);
+    }
 
 });
-
-console.log('proxy listening on ' + port);
-console.log('script dir ' + __dirname);
 
 server.listen(port);
 
@@ -67,5 +65,4 @@ try {
 
 var deployerPort = port+1
 var deployer = new Deployer(config);
-console.log('deployer listening on ' + deployerPort);
 deployer.listen(deployerPort);
