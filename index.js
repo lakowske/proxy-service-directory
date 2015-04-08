@@ -6,10 +6,10 @@ var fs               = require('fs');
 var path             = require('path');
 var http             = require('http');
 var httpProxy        = require('http-proxy');
-var proxyByDirectory = require('proxy-by-directory');
+var proxyByRoutes    = require('proxy-by-routes');
 var level            = require('level');
-var logger           = require('http-request-logger');
 var router           = require('routes')();
+var logger           = require('http-request-logger');
 var methods          = require('http-methods');
 var Deployer         = require('github-webhook-deployer');
 var cors             = new (require('http-cors'))();
@@ -24,17 +24,14 @@ if (!port) {
 
 //open the request db
 var db = level('./request.db');
+
+var proxyRouter = proxyByRoutes.proxyByRoute({'/articles*': { host:'localhost', port:5555 },
+                                              '/static*'  : { host:'localhost', port:5555 },
+                                              '/*'        : { host:'localhost', port:7777 }});
+
 requestLogger = logger(db);
 request       = requestLogger.request();
 router.addRoute('/requests', methods({GET:requestLogger.requests(), POST:requestLogger.classified()}));
-
-var proxy  = httpProxy.createProxyServer({});
-
-var proxyFn = proxyByDirectory({
-    '/articles' : { target : 'http://localhost:5555/' },
-    '/static' : { target : 'http://localhost:5555/' },
-    '/' : { target : 'http://localhost:7777' }
-}, proxy)
 
 var server = http.createServer(function(req, res) {
 
@@ -42,13 +39,15 @@ var server = http.createServer(function(req, res) {
     console.log(req.url);
     if (cors.apply(req, res)) return;
 
+    //check if we should serve the request
     var m = router.match(req.url);
-    if (m) m.fn(req, res, m.params, function() {console.log("served proxy req")}); //check if we should serve the request
+    if (m) m.fn(req, res, m.params, function() {console.log("served /requests")}); 
     else {
         //log the request
         request(req, res);
-        //route the request to the correct server
-        proxyFn(req, res);
+        var m = proxyRouter.match(req.url);
+        if (m) m.fn(req, res, m.params)
+        else { res.end('not found') }
     }
 
 });
