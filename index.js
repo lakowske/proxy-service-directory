@@ -5,7 +5,6 @@
 var fs               = require('fs');
 var path             = require('path');
 var http             = require('http');
-var httpProxy        = require('http-proxy');
 var proxyByRoutes    = require('proxy-by-routes');
 var level            = require('level');
 var router           = require('routes')();
