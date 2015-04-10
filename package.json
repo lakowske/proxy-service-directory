@@ -22,13 +22,13 @@
   },
   "homepage": "https://github.com/lakowske/proxy-service-directory",
   "dependencies": {
-    "github-webhook-deployer": "0.0.2",
-    "http-cors": "^1.0.1",
-    "http-methods": "^1.0.0",
-    "http-proxy": "^1.8.1",
-    "http-request-logger": "git://github.com/lakowske/http-request-logger",
-    "level": "^0.18.0",
-    "proxy-by-directory": "*",
-    "routes": "^2.0.0"
+      "github-webhook-deployer": "0.0.2",
+      "http-cors": "^1.0.1",
+      "http-methods": "^1.0.0",
+      "http-proxy": "^1.8.1",
+      "http-request-logger": "git://github.com/lakowske/http-request-logger",
+      "level": "^0.18.0",
+      "proxy-by-routes": "git://github.com/lakowske/proxy-by-routes",
+      "routes": "^2.0.0"
   }
 }

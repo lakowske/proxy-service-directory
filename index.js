@@ -25,9 +25,10 @@ if (!port) {
 //open the request db
 var db = level('./request.db');
 
-var proxyRouter = proxyByRoutes.proxyByRoute({'/articles*': { host:'localhost', port:5555 },
-                                              '/static*'  : { host:'localhost', port:5555 },
-                                              '/*'        : { host:'localhost', port:7777 }});
+var proxyRouter = proxyByRoutes.proxyByRoute([{pattern:'/articles*', host:'localhost', port:5555 },
+                                              {pattern:'/static*'  , host:'localhost', port:5555 },
+                                              {pattern:'/*'        , host:'localhost', port:7777 }]);
+
 
 requestLogger = logger(db);
 request       = requestLogger.request();
@@ -41,12 +42,15 @@ var server = http.createServer(function(req, res) {
 
     //check if we should serve the request
     var m = router.match(req.url);
-    if (m) m.fn(req, res, m.params, function() {console.log("served /requests")}); 
+    if (m) m.fn(req, res, m.params, function() {console.log("served /requests")});
     else {
         //log the request
         request(req, res);
         var m = proxyRouter.match(req.url);
-        if (m) m.fn(req, res, m.params)
+        if (m) {
+            console.log('matched ' + m.route);
+            m.fn(req, res, m.params)
+        }
         else { res.end('not found') }
     }
 
