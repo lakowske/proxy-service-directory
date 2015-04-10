@@ -30,6 +30,15 @@ router.addRoute('/requests', methods({GET:requestLogger.requests(), POST:request
 
 var proxy  = httpProxy.createProxyServer({});
 
+proxy.on('error', function(er, req, res) {
+    console.log(er);
+    res.writeHead(500, {
+        'Content-Type':'text/plain'
+    });
+
+    res.end("Something went wrong. Probably an unresponsive web server.");
+})
+
 var proxyFn = proxyByDirectory({
     '/articles' : { target : 'http://localhost:5555/' },
     '/static' : { target : 'http://localhost:5555/' },
