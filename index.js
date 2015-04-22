@@ -28,6 +28,11 @@ var request = null;
 
 function connectOrFail(callback) {
     pg.connect(connection, function(err, client, done) {
+        if (err) {
+            console.log(err);
+            process.exit();
+        }
+        
         pgReqPersister.requestTable(client, function(err, result) {
             done();
             callback();
