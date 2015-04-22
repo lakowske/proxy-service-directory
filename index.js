@@ -7,8 +7,9 @@ var path             = require('path');
 var http             = require('http');
 var httpProxy        = require('http-proxy');
 var proxyByDirectory = require('proxy-by-directory');
-var level            = require('level');
-var logger           = require('http-request-logger');
+var logger           = require('http-request-logger').request;
+var pg               = require('pg');
+var pgReqPersister   = require('pg-http-request-logger');
 var router           = require('routes')();
 var methods          = require('http-methods');
 var Deployer         = require('github-webhook-deployer');
@@ -18,51 +19,67 @@ var port   = parseInt(process.argv[2], 10);
 
 if (!port) {
     console.log('invalid port\n');
-    console.log('Usage: node index.js <port>');
+    console.log('Usage: node index.js <port> [requestdb]');
     process.exit(-1);
 }
 
-//open the request db
-var db = level('./request.db');
-requestLogger = logger(db);
-request       = requestLogger.request();
-router.addRoute('/requests', methods({GET:requestLogger.requests(), POST:requestLogger.classified()}));
+var user = process.env['USER'];
+var connection = 'postgres://'+user+'@localhost/request';
+var request = null;
 
-var proxy  = httpProxy.createProxyServer({});
+function connectOrFail(callback) {
+    pg.connect(connection, function(err, client, done) {
+        pgReqPersister.requestTable(client, function(err, result) {
+            done();
+            callback();
+        })
+    })
+}
 
-proxy.on('error', function(er, req, res) {
-    console.log(er);
-    res.writeHead(500, {
-        'Content-Type':'text/plain'
-    });
+function onConnection() {
 
-    res.end("Something went wrong. Probably an unresponsive web server.");
-})
+    var proxy  = httpProxy.createProxyServer({});
 
-var proxyFn = proxyByDirectory({
-    '/articles' : { target : 'http://localhost:5555/' },
-    '/static' : { target : 'http://localhost:5555/' },
-    '/' : { target : 'http://localhost:7777' }
-}, proxy)
+    proxy.on('error', function(er, req, res) {
+        console.log(er);
+        res.writeHead(500, {
+            'Content-Type':'text/plain'
+        });
 
-var server = http.createServer(function(req, res) {
+        res.end("Something went wrong. Probably an unresponsive web server.");
+    })
 
-    console.log(req.method);
-    console.log(req.url);
-    if (cors.apply(req, res)) return;
+    var proxyFn = proxyByDirectory({
+        '/articles' : { target : 'http://localhost:5555/' },
+        '/static' : { target : 'http://localhost:5555/' },
+        '/' : { target : 'http://localhost:7777' }
+    }, proxy)
 
-    var m = router.match(req.url);
-    if (m) m.fn(req, res, m.params, function() {console.log("served proxy req")}); //check if we should serve the request
-    else {
+    var server = http.createServer(function(req, res) {
+
+        console.log(req.method);
+        console.log(req.url);
+
+        if (cors.apply(req, res)) return;
+
         //log the request
-        request(req, res);
+        var reqDescription = pgReqPersister.request(req, res);
+        pg.connect(connection, function(err, client, done) {
+            if (err) console.error('Problem establishing connection to the database')
+            pgReqPersister.insertRequest(client, reqDescription, function(err, result) {
+                if (err) console.error('Problem adding request to the database');
+                done();
+            })
+        })
+
         //route the request to the correct server
         proxyFn(req, res);
-    }
 
-});
 
-server.listen(port);
+    });
+
+    server.listen(port);
+}
 
 try {
     var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
@@ -75,3 +92,5 @@ try {
 var deployerPort = port+1
 var deployer = new Deployer(config);
 deployer.listen(deployerPort);
+
+connectOrFail(onConnection);
