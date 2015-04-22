@@ -27,6 +27,7 @@
     "http-methods": "^1.0.0",
     "http-proxy": "^1.8.1",
     "pg": "^4.3.0",
+    "pg-http-request-logger": "git+ssh://git@github.com:lakowske/pg-http-request-logger.git",
     "proxy-by-directory": "*",
     "routes": "^2.0.0"
   }
