@@ -20,7 +20,7 @@ var port   = parseInt(process.argv[2], 10);
 
 if (!port) {
     console.log('invalid port\n');
-    console.log('Usage: node index.js <port> [requestdb]');
+    console.log('Usage: node index.js <port>');
     process.exit(-1);
 }
 
