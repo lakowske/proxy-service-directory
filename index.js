@@ -22,9 +22,6 @@ if (!port) {
     process.exit(-1);
 }
 
-var user = process.env['USER'];
-var connection = 'postgres://'+user+'@localhost/request';
-var request = null;
 
 function connectOrFail(callback) {
     pg.connect(connection, function(err, client, done) {
@@ -95,5 +92,13 @@ try {
 var deployerPort = port+1
 var deployer = new Deployer(config);
 deployer.listen(deployerPort);
+
+var user = process.env['USER'];
+if (config.user) user = config.user;
+
+var connection = 'postgres://'+user+'@localhost/request';
+if (config.pass) {
+    connection = 'postgres://'+user+':'+config.pass+'@localhost/request';
+}
 
 connectOrFail(onConnection);
