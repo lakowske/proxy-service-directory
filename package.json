@@ -29,6 +29,7 @@
     "http-request-logger": "git://github.com/lakowske/http-request-logger",
     "level": "^0.18.0",
     "pg": "^4.3.0",
+    "pg-http-request-logger": "git+ssh://git@github.com:lakowske/pg-http-request-logger.git",
     "proxy-by-directory": "*",
     "routes": "^2.0.0"
   }
