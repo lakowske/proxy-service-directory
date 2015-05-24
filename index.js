@@ -13,6 +13,8 @@ var router           = require('routes')();
 var methods          = require('http-methods');
 var Deployer         = require('github-webhook-deployer');
 var cors             = new (require('http-cors'))();
+var throttleEmail    = require('./email').throttleEmail;
+var url              = require('url');
 
 var port   = parseInt(process.argv[2], 10);
 
@@ -22,14 +24,23 @@ if (!port) {
     process.exit(-1);
 }
 
+try {
+    var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
+} catch (error) {
+    console.log(error);
+    console.log('Problem loading configuration. Create a config.json file with deployer configuration');
+    process.exit(-1);
+}
 
 function connectOrFail(callback) {
+    console.info('connecting to ' + connection);
     pg.connect(connection, function(err, client, done) {
         if (err) {
+            console.log('error while connecting to postgres server');
             console.log(err);
             process.exit();
         }
-        
+
         pgReqPersister.requestTable(client, function(err, result) {
             done();
             callback();
@@ -46,20 +57,18 @@ function onConnection() {
         res.writeHead(500, {
             'Content-Type':'text/plain'
         });
-
+        var millisPerEmail = 1000 * 20; //one minute between emails
+        throttleEmail(millisPerEmail, config.serviceDirectory, 'Error: reverse-proxy', 'Something went wrong. Probably an unresponsive web server.', function() {
+            console.log('emailed error');
+        });
         res.end("Something went wrong. Probably an unresponsive web server.");
     })
 
-    var proxyFn = proxyByDirectory({
-        '/articles' : { target : 'http://localhost:5555/' },
-        '/static' : { target : 'http://localhost:5555/' },
-        '/' : { target : 'http://localhost:7777' }
-    }, proxy)
+    var proxyFn = proxyByDirectory(config.directory, proxy)
 
     var server = http.createServer(function(req, res) {
 
-        console.log(req.method);
-        console.log(req.url);
+        console.log(req.method + ' ' + req.url);
 
         if (cors.apply(req, res)) return;
 
@@ -81,13 +90,6 @@ function onConnection() {
     server.listen(port);
 }
 
-try {
-    var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
-} catch (error) {
-    console.log(error);
-    console.log('Problem loading configuration. Create a config.json file with deployer configuration');
-    process.exit(-1);
-}
 
 var deployerPort = port+1
 var deployer = new Deployer(config);
