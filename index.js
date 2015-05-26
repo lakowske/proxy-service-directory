@@ -57,11 +57,15 @@ function onConnection() {
         res.writeHead(500, {
             'Content-Type':'text/plain'
         });
-        var millisPerEmail = 1000 * 20; //one minute between emails
-        throttleEmail(millisPerEmail, config.serviceDirectory, 'Error: reverse-proxy', 'Something went wrong. Probably an unresponsive web server.', function() {
-            console.log('emailed error');
-        });
-        res.end("Something went wrong. Probably an unresponsive web server.");
+
+        //twenty seconds between emails,
+        //buffer msgs otherwise
+        var millisPerEmail = 1000 * 20;
+        var msg = 'Error fetching ' + req.url + '\nProbably an unresponsive web server.';
+
+        throttleEmail(millisPerEmail, config.serviceDirectory, 'Error: reverse-proxy', msg, function() {});
+
+        res.end(msg);
     })
 
     var proxyFn = proxyByDirectory(config.directory, proxy)
