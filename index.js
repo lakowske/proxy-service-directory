@@ -105,6 +105,8 @@ if (config.user) user = config.user;
 var connection = 'postgres://'+user+'@localhost/request';
 if (config.pass) {
     connection = 'postgres://'+user+':'+config.pass+'@localhost/request';
+} else if (config.db) {
+    connection = config.db;
 }
 
 connectOrFail(onConnection);
