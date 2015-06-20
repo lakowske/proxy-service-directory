@@ -73,8 +73,8 @@ function onConnection() {
     var server = http.createServer(function(req, res) {
 
         console.log(req.method + ' ' + req.url);
-
-        if (cors.apply(req, res)) return;
+        //route the request to the correct server
+        proxyFn(req, res);
 
         //log the request
         var reqDescription = pgReqPersister.request(req, res);
@@ -86,8 +86,6 @@ function onConnection() {
             })
         })
 
-        //route the request to the correct server
-        proxyFn(req, res);
 
     });
 
