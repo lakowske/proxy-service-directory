@@ -12,7 +12,6 @@ var pgReqPersister   = require('pg-http-request-logger');
 var router           = require('routes')();
 var methods          = require('http-methods');
 var Deployer         = require('github-webhook-deployer');
-var cors             = new (require('http-cors'))();
 var throttleEmail    = require('./email').throttleEmail;
 var url              = require('url');
 
@@ -33,7 +32,7 @@ try {
 }
 
 function connectOrFail(callback) {
-    console.info('connecting to ' + connection);
+    console.info('connecting to db');
     pg.connect(connection, function(err, client, done) {
         if (err) {
             console.log('error while connecting to postgres server');
@@ -63,7 +62,7 @@ function onConnection() {
         var millisPerEmail = 1000 * 20;
         var msg = 'Error fetching ' + req.url + '\nProbably an unresponsive web server.';
 
-        throttleEmail(millisPerEmail, config.serviceDirectory, 'Error: reverse-proxy', msg, function() {});
+        throttleEmail(millisPerEmail, config.emailService, 'Error: reverse-proxy', msg, function() {});
 
         res.end(msg);
     })
@@ -73,8 +72,6 @@ function onConnection() {
     var server = http.createServer(function(req, res) {
 
         console.log(req.method + ' ' + req.url);
-
-        if (cors.apply(req, res)) return;
 
         //log the request
         var reqDescription = pgReqPersister.request(req, res);
