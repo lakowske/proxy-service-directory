@@ -72,6 +72,8 @@ function onConnection() {
     var server = http.createServer(function(req, res) {
 
         console.log(req.method + ' ' + req.url);
+        //route the request to the correct server
+        proxyFn(req, res);
 
         //log the request
         var reqDescription = pgReqPersister.request(req, res);
@@ -83,14 +85,14 @@ function onConnection() {
             })
         })
 
-        //route the request to the correct server
-        proxyFn(req, res);
-
     });
 
     server.listen(port);
 }
 
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception: ' + err);
+});
 
 var deployerPort = port+1
 var deployer = new Deployer(config);
