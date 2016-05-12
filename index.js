@@ -45,7 +45,6 @@ function connectOrFail(callback, tries) {
             setTimeout(function() {
                 connectOrFail(callback, tries - 1);
             }, 2000);
-            
         }
 
         pgReqPersister.requestTable(client, function(err, result) {
