@@ -31,13 +31,21 @@ try {
     process.exit(-1);
 }
 
-function connectOrFail(callback) {
+function connectOrFail(callback, tries) {
+    if (tries <= 0) {
+        process.exit();
+    }
+    
     console.info('connecting to db');
+    
     pg.connect(connection, function(err, client, done) {
         if (err) {
             console.log('error while connecting to postgres server');
             console.log(err);
-            process.exit();
+            setTimeout(function() {
+                connectOrFail(callback, tries - 1);
+            }, 2000);
+            
         }
 
         pgReqPersister.requestTable(client, function(err, result) {
